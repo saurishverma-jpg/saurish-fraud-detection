@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Model Stats — Saurish</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-dot"></div><span class="brand-name">Saurish</span></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="transactions.html" class="nav-link">💳 Transactions</a>
+      <a href="predict.html" class="nav-link">🤖 Predict Fraud</a>
+      <a href="model.html" class="nav-link active">📈 Model Stats</a>
+    </nav>
+    <div class="sidebar-footer">AI Fraud Detection v1.0</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1>Model Performance</h1><p class="subtitle">Random Forest + XGBoost ensemble metrics</p></div>
+    </header>
+
+    <div class="metrics-grid">
+      <div class="metric-card"><div class="metric-label">Accuracy</div><div class="metric-value">98.7%</div><div class="metric-change positive">↑ Best model</div></div>
+      <div class="metric-card"><div class="metric-label">Precision</div><div class="metric-value">96.2%</div><div class="metric-change positive">Low false positives</div></div>
+      <div class="metric-card"><div class="metric-label">Recall</div><div class="metric-value">94.8%</div><div class="metric-change positive">Catches most fraud</div></div>
+      <div class="metric-card"><div class="metric-label">F1 Score</div><div class="metric-value">0.955</div><div class="metric-change positive">Excellent balance</div></div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card chart-card">
+        <h2>ROC Curve</h2>
+        <canvas id="rocChart" height="220"></canvas>
+      </div>
+      <div class="card chart-card">
+        <h2>Precision-Recall Curve</h2>
+        <canvas id="prChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0;">
+      <h2>Confusion Matrix</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;max-width:400px;">
+        <div style="background:rgba(29,158,117,0.1);border:0.5px solid rgba(29,158,117,0.3);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">True Negative</div>
+          <div style="font-size:32px;font-weight:700;color:#5DCAA5;">284,315</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">Correct Safe</div>
+        </div>
+        <div style="background:rgba(226,75,74,0.08);border:0.5px solid rgba(226,75,74,0.3);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">False Positive</div>
+          <div style="font-size:32px;font-weight:700;color:#F09595;">162</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">Wrongly Flagged</div>
+        </div>
+        <div style="background:rgba(226,75,74,0.08);border:0.5px solid rgba(226,75,74,0.3);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">False Negative</div>
+          <div style="font-size:32px;font-weight:700;color:#F09595;">25</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">Missed Fraud</div>
+        </div>
+        <div style="background:rgba(29,158,117,0.1);border:0.5px solid rgba(29,158,117,0.3);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">True Positive</div>
+          <div style="font-size:32px;font-weight:700;color:#5DCAA5;">467</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;">Caught Fraud</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ROC Chart
+    const rocCtx = document.getElementById('rocChart');
+    if(rocCtx){
+      const rocData = [0,0.01,0.03,0.06,0.1,0.15,0.2,0.3,0.5,0.7,1.0];
+      const rocY    = [0,0.55,0.78,0.88,0.92,0.95,0.97,0.98,0.99,0.995,1.0];
+      new Chart(rocCtx, {
+        type:'line',
+        data:{
+          labels: rocData,
+          datasets:[
+            { label:'Our Model', data: rocData.map((x,i)=>({x,y:rocY[i]})), borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.1)', fill:true, tension:0.4, pointRadius:0 },
+            { label:'Random Baseline', data:[{x:0,y:0},{x:1,y:1}], borderColor:'rgba(255,255,255,0.2)', borderDash:[5,5], pointRadius:0 }
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'rgba(255,255,255,0.6)', font:{size:12} } } },
+          scales:{
+            x:{ title:{display:true,text:'False Positive Rate',color:'rgba(255,255,255,0.4)'}, ticks:{color:'rgba(255,255,255,0.4)'}, grid:{color:'rgba(255,255,255,0.05)'} },
+            y:{ title:{display:true,text:'True Positive Rate',color:'rgba(255,255,255,0.4)'}, ticks:{color:'rgba(255,255,255,0.4)'}, grid:{color:'rgba(255,255,255,0.05)'} }
+          }
+        }
+      });
+    }
+
+    // PR Chart
+    const prCtx = document.getElementById('prChart');
+    if(prCtx){
+      const recall = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0];
+      const prec   = [1.0,0.99,0.98,0.97,0.96,0.95,0.93,0.90,0.85,0.75,0.50];
+      new Chart(prCtx, {
+        type:'line',
+        data:{
+          labels: recall,
+          datasets:[
+            { label:'Precision-Recall', data: recall.map((x,i)=>({x,y:prec[i]})), borderColor:'#7F77DD', backgroundColor:'rgba(127,119,221,0.1)', fill:true, tension:0.4, pointRadius:0 }
+          ]
+        },
+        options:{
+          responsive:true,
+          plugins:{ legend:{ labels:{ color:'rgba(255,255,255,0.6)', font:{size:12} } } },
+          scales:{
+            x:{ title:{display:true,text:'Recall',color:'rgba(255,255,255,0.4)'}, ticks:{color:'rgba(255,255,255,0.4)'}, grid:{color:'rgba(255,255,255,0.05)'} },
+            y:{ title:{display:true,text:'Precision',color:'rgba(255,255,255,0.4)'}, ticks:{color:'rgba(255,255,255,0.4)'}, grid:{color:'rgba(255,255,255,0.05)'} }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saurish — AI Fraud Detection</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">Saurish</span>
+    </div>
+    <nav>
+      <a href="#" class="nav-link active">📊 Dashboard</a>
+      <a href="transactions.html" class="nav-link">💳 Transactions</a>
+      <a href="predict.html" class="nav-link">🤖 Predict Fraud</a>
+      <a href="model.html" class="nav-link">📈 Model Stats</a>
+    </nav>
+    <div class="sidebar-footer">AI Fraud Detection v1.0</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="subtitle">Real-time fraud monitoring</p>
+      </div>
+      <div class="live-badge">● LIVE</div>
+    </header>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Total Transactions</div>
+        <div class="metric-value" id="totalTx">12,847</div>
+        <div class="metric-change positive">↑ 3.2% today</div>
+      </div>
+      <div class="metric-card danger">
+        <div class="metric-label">Fraud Detected</div>
+        <div class="metric-value" id="fraudCount">47</div>
+        <div class="metric-change negative">↑ 2 in last hour</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Model Accuracy</div>
+        <div class="metric-value">98.7%</div>
+        <div class="metric-change positive">↑ 0.3% this week</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Amount Saved</div>
+        <div class="metric-value">$2.4M</div>
+        <div class="metric-change positive">↑ $120K today</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="card chart-card">
+        <h2>Fraud vs Legitimate (Last 7 Days)</h2>
+        <canvas id="barChart" height="200"></canvas>
+      </div>
+      <div class="card chart-card">
+        <h2>Fraud by Category</h2>
+        <canvas id="doughnutChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Flagged Transactions</h2>
+      <table class="tx-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Amount</th><th>Merchant</th><th>Location</th><th>Risk Score</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="txBody">
+          <tr><td>#TXN-8821</td><td>$4,500.00</td><td>Unknown Merchant</td><td>Lagos, NG</td><td><span class="risk high">0.97</span></td><td><span class="badge danger">Fraud</span></td></tr>
+          <tr><td>#TXN-8819</td><td>$12.99</td><td>Netflix</td><td>New York, US</td><td><span class="risk low">0.03</span></td><td><span class="badge safe">Safe</span></td></tr>
+          <tr><td>#TXN-8815</td><td>$890.00</td><td>Electronics Store</td><td>Mumbai, IN</td><td><span class="risk medium">0.61</span></td><td><span class="badge warning">Review</span></td></tr>
+          <tr><td>#TXN-8810</td><td>$25,000.00</td><td>Wire Transfer</td><td>Unknown</td><td><span class="risk high">0.99</span></td><td><span class="badge danger">Fraud</span></td></tr>
+          <tr><td>#TXN-8807</td><td>$65.50</td><td>Amazon</td><td>Delhi, IN</td><td><span class="risk low">0.05</span></td><td><span class="badge safe">Safe</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

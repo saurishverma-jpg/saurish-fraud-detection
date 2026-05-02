@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transactions — Saurish Fraud Detection</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-dot"></div><span class="brand-name">Saurish</span></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="transactions.html" class="nav-link active">💳 Transactions</a>
+      <a href="predict.html" class="nav-link">🤖 Predict Fraud</a>
+      <a href="model.html" class="nav-link">📈 Model Stats</a>
+    </nav>
+    <div class="sidebar-footer">AI Fraud Detection v1.0</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1>Transactions</h1><p class="subtitle">All flagged and cleared transactions</p></div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <select id="filterStatus" style="background:#0d1225;color:#fff;border:0.5px solid rgba(255,255,255,0.15);padding:8px 12px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;">
+          <option value="all">All Status</option>
+          <option value="fraud">Fraud</option>
+          <option value="safe">Safe</option>
+          <option value="review">Review</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="card">
+      <table class="tx-table" id="fullTxTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Date</th><th>Amount</th><th>Merchant</th><th>Location</th><th>Card Type</th><th>Risk Score</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="fullTxBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script>
+    const transactions = [
+      { id:'#TXN-8821', date:'2024-01-15 14:32', amount:'$4,500.00', merchant:'Unknown Merchant', location:'Lagos, NG', card:'Visa', risk:0.97, status:'fraud' },
+      { id:'#TXN-8820', date:'2024-01-15 14:28', amount:'$12.99', merchant:'Spotify', location:'London, UK', card:'Mastercard', risk:0.02, status:'safe' },
+      { id:'#TXN-8819', date:'2024-01-15 14:20', amount:'$12.99', merchant:'Netflix', location:'New York, US', card:'Visa', risk:0.03, status:'safe' },
+      { id:'#TXN-8818', date:'2024-01-15 13:55', amount:'$3,200.00', merchant:'Jewelry Store', location:'Dubai, AE', card:'Amex', risk:0.78, status:'review' },
+      { id:'#TXN-8817', date:'2024-01-15 13:40', amount:'$45.00', merchant:'Uber Eats', location:'Mumbai, IN', card:'Rupay', risk:0.04, status:'safe' },
+      { id:'#TXN-8816', date:'2024-01-15 13:12', amount:'$8,900.00', merchant:'Crypto Exchange', location:'Unknown', card:'Visa', risk:0.94, status:'fraud' },
+      { id:'#TXN-8815', date:'2024-01-15 12:50', amount:'$890.00', merchant:'Electronics Store', location:'Mumbai, IN', card:'Mastercard', risk:0.61, status:'review' },
+      { id:'#TXN-8814', date:'2024-01-15 12:22', amount:'$22.50', merchant:'McDonald\'s', location:'Delhi, IN', card:'Visa', risk:0.01, status:'safe' },
+      { id:'#TXN-8813', date:'2024-01-15 11:45', amount:'$15,000.00', merchant:'Wire Transfer', location:'Unknown', card:'N/A', risk:0.99, status:'fraud' },
+      { id:'#TXN-8812', date:'2024-01-15 11:10', amount:'$120.00', merchant:'Zara', location:'Paris, FR', card:'Mastercard', risk:0.08, status:'safe' },
+      { id:'#TXN-8811', date:'2024-01-15 10:33', amount:'$540.00', merchant:'Gaming Store', location:'Seoul, KR', card:'Visa', risk:0.45, status:'review' },
+      { id:'#TXN-8810', date:'2024-01-15 09:58', amount:'$25,000.00', merchant:'Wire Transfer', location:'Unknown', card:'N/A', risk:0.99, status:'fraud' },
+    ];
+
+    function riskClass(r) {
+      if (r >= 0.7) return 'high';
+      if (r >= 0.4) return 'medium';
+      return 'low';
+    }
+    function statusBadge(s) {
+      if (s === 'fraud') return '<span class="badge danger">Fraud</span>';
+      if (s === 'review') return '<span class="badge warning">Review</span>';
+      return '<span class="badge safe">Safe</span>';
+    }
+
+    function renderTable(filter = 'all') {
+      const tbody = document.getElementById('fullTxBody');
+      const filtered = filter === 'all' ? transactions : transactions.filter(t => t.status === filter);
+      tbody.innerHTML = filtered.map(t => `
+        <tr>
+          <td>${t.id}</td>
+          <td>${t.date}</td>
+          <td>${t.amount}</td>
+          <td>${t.merchant}</td>
+          <td>${t.location}</td>
+          <td>${t.card}</td>
+          <td><span class="risk ${riskClass(t.risk)}">${t.risk.toFixed(2)}</span></td>
+          <td>${statusBadge(t.status)}</td>
+        </tr>
+      `).join('');
+    }
+
+    renderTable();
+    document.getElementById('filterStatus').addEventListener('change', e => renderTable(e.target.value));
+  </script>
+</body>
+</html>

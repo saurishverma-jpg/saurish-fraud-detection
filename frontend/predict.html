@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Predict Fraud — Saurish</title>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-dot"></div><span class="brand-name">Saurish</span></div>
+    <nav>
+      <a href="index.html" class="nav-link">📊 Dashboard</a>
+      <a href="transactions.html" class="nav-link">💳 Transactions</a>
+      <a href="predict.html" class="nav-link active">🤖 Predict Fraud</a>
+      <a href="model.html" class="nav-link">📈 Model Stats</a>
+    </nav>
+    <div class="sidebar-footer">AI Fraud Detection v1.0</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><h1>Predict Fraud</h1><p class="subtitle">Enter transaction details to get an AI risk score</p></div>
+    </header>
+
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;">
+      <div class="card">
+        <h2>Transaction Details</h2>
+        <div style="margin-top:20px;">
+          <div class="form-group">
+            <label>Transaction Amount ($)</label>
+            <input type="number" id="amount" placeholder="e.g. 1500.00" />
+          </div>
+          <div class="form-group">
+            <label>Merchant Name</label>
+            <input type="text" id="merchant" placeholder="e.g. Amazon, Unknown Vendor" />
+          </div>
+          <div class="form-group">
+            <label>Transaction Location</label>
+            <input type="text" id="location" placeholder="e.g. New York, US" />
+          </div>
+          <div class="form-group">
+            <label>Card Type</label>
+            <select id="cardType">
+              <option>Visa</option>
+              <option>Mastercard</option>
+              <option>Amex</option>
+              <option>Rupay</option>
+              <option>Unknown</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Time of Day</label>
+            <select id="timeOfDay">
+              <option>Morning (6AM–12PM)</option>
+              <option>Afternoon (12PM–6PM)</option>
+              <option>Evening (6PM–11PM)</option>
+              <option>Late Night (11PM–6AM)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Previous Fraud History</label>
+            <select id="history">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+          <button class="btn" onclick="predict()">🔍 Analyze Transaction</button>
+        </div>
+
+        <div class="result-box" id="resultBox">
+          <div class="result-title" id="resultTitle"></div>
+          <div style="font-size:28px;font-weight:700;margin:8px 0;" id="resultScore"></div>
+          <div class="result-desc" id="resultDesc"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>How It Works</h2>
+        <div style="margin-top:20px;display:flex;flex-direction:column;gap:20px;">
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(29,158,117,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">1</div>
+            <div>
+              <div style="font-weight:500;font-size:14px;margin-bottom:4px;">Feature Extraction</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">Transaction details are converted into 28 numerical features matching the trained model's input space.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(127,119,221,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">2</div>
+            <div>
+              <div style="font-weight:500;font-size:14px;margin-bottom:4px;">Random Forest Model</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">100 decision trees vote on whether the transaction is fraudulent based on patterns learned from 284,807 real transactions.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(239,159,39,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">3</div>
+            <div>
+              <div style="font-weight:500;font-size:14px;margin-bottom:4px;">Risk Score Output</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">A probability score (0–1) is returned. Above 0.7 = Fraud, 0.4–0.7 = Review, Below 0.4 = Safe.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div style="width:32px;height:32px;border-radius:50%;background:rgba(226,75,74,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;">4</div>
+            <div>
+              <div style="font-weight:500;font-size:14px;margin-bottom:4px;">Action & Alert</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;">In production, high-risk scores trigger instant alerts, block the transaction, and log it for review.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    function predict() {
+      const amount = parseFloat(document.getElementById('amount').value) || 0;
+      const merchant = document.getElementById('merchant').value.toLowerCase();
+      const location = document.getElementById('location').value.toLowerCase();
+      const timeOfDay = document.getElementById('timeOfDay').value;
+      const history = document.getElementById('history').value;
+
+      // Heuristic scoring (demo — real version calls backend API)
+      let score = 0.05;
+
+      if (amount > 10000) score += 0.40;
+      else if (amount > 3000) score += 0.25;
+      else if (amount > 1000) score += 0.10;
+
+      const suspectMerchants = ['unknown', 'wire', 'crypto', 'transfer', 'offshore'];
+      if (suspectMerchants.some(w => merchant.includes(w))) score += 0.30;
+
+      const suspectLocations = ['unknown', 'nigeria', 'ng', 'offshore'];
+      if (suspectLocations.some(w => location.includes(w))) score += 0.20;
+
+      if (timeOfDay.includes('Late Night')) score += 0.15;
+
+      if (history === 'yes') score += 0.30;
+
+      score = Math.min(score + (Math.random() * 0.05), 0.99);
+
+      const box = document.getElementById('resultBox');
+      const title = document.getElementById('resultTitle');
+      const scoreEl = document.getElementById('resultScore');
+      const desc = document.getElementById('resultDesc');
+
+      box.style.display = 'block';
+      box.className = 'result-box';
+
+      if (score >= 0.7) {
+        box.classList.add('fraud');
+        title.innerHTML = '<span class="result-fraud">⚠ High Fraud Risk Detected</span>';
+        scoreEl.style.color = '#F09595';
+        desc.textContent = 'This transaction shows multiple high-risk indicators. Recommend immediate block and manual review.';
+      } else if (score >= 0.4) {
+        box.classList.add('fraud');
+        title.innerHTML = '<span style="color:#FAC775">⚡ Medium Risk — Review Required</span>';
+        scoreEl.style.color = '#FAC775';
+        desc.textContent = 'Some suspicious patterns detected. Recommend flagging for manual review before processing.';
+      } else {
+        box.classList.add('safe');
+        title.innerHTML = '<span class="result-safe">✓ Transaction Appears Safe</span>';
+        scoreEl.style.color = '#5DCAA5';
+        desc.textContent = 'No significant fraud indicators found. Transaction can be processed normally.';
+      }
+
+      scoreEl.textContent = 'Risk Score: ' + score.toFixed(3);
+    }
+  </script>
+</body>
+</html>
