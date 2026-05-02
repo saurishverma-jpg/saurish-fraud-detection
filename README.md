@@ -147,3 +147,4 @@ Project 3: AI for Fraud Detection
 
 ## 📄 License
 MIT License — Free to use and modify.
+DEMO - https://saurishverma-jpg.github.io/saurish-fraud-detection/frontend/
